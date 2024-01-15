@@ -5,15 +5,15 @@
 namespace: spring-projects
 
 metadata:
-  serviceName: eureka-server
+  serviceName: spring-discovery-api-service
 
 
 spec:
   minReadySeconds: 10
-  progressDeadlineSeconds: 600
+  progressDeadlineSeconds: 100
   replicas: 1
   revisionHistoryLimit: 10
-  containerPort: 8761
+  containerPort: 8081
   protocol: TCP
 
 strategy:
@@ -22,20 +22,20 @@ strategy:
   type: RollingUpdate
 
 envs:
-  SPRING_APPLICATION_NAME: eureka-server
-  SERVER_PORT: 8761
+  SPRING_APPLICATION_NAME: firstService
+  SERVER_PORT: 8081
 
 dockerImage:
-  image: afsarkhan05/spring-discovery-service
+  image: afsarkhan05/spring-discovery-api-service
   version: 1.0-SNAPSHOT
   imagePullPolicy: IfNotPresent
   restartPolicy: IfNotPresent
 
 serviceSpec:
   name: http
-  port: 8761
+  port: 8081
   protocol: TCP
-  targetPort: 8761
+  targetPort: 8081
 
 
 livenessProbe:

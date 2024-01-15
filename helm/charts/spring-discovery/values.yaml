@@ -1,0 +1,41 @@
+# Default values for hello-world.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: spring-projects
+
+metadata:
+  serviceName: spring-discovery
+
+
+spec:
+  minReadySeconds: 10
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  containerPort: 8081
+  protocol: TCP
+
+strategy:
+  maxSurge: 1
+  maxUnavailable: 1
+  type: RollingUpdate
+
+envs:
+  SPRING_APPLICATION_NAME: myFirstApp
+  SERVER_PORT: 8081
+  SERVER_SERVLET_CONTEXT-PATH: "/first-service"
+  EUREKA_CLIENT_SERVICE-URL.DEFAULTZONE: "http://localhost:8761/eureka"
+
+dockerImage:
+  image: afsarkhan05/spring-discovery-api-service
+  version: 1.0-SNAPSHOT
+  imagePullPolicy: IfNotPresent
+  restartPolicy: IfNotPresent
+
+serviceSpec:
+  name: http
+  port: 8081
+  protocol: TCP
+  targetPort: 8081
+

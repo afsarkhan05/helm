@@ -1,0 +1,43 @@
+# Default values for hello-world.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: spring-projects
+
+metadata:
+  serviceName: eureka-server
+
+
+spec:
+  minReadySeconds: 10
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  containerPort: 8761
+  protocol: TCP
+
+strategy:
+  maxSurge: 1
+  maxUnavailable: 1
+  type: RollingUpdate
+
+envs:
+  SPRING_APPLICATION_NAME: eureka-server
+  SERVER_PORT: 8761
+
+dockerImage:
+  image: afsarkhan05/spring-discovery-service
+  version: 1.0-SNAPSHOT
+  imagePullPolicy: IfNotPresent
+  restartPolicy: IfNotPresent
+
+serviceSpec:
+  name: http
+  port: 8761
+  protocol: TCP
+  targetPort: 8761
+
+livenessProbe:
+  failureThreshold: 3
+
+

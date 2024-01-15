@@ -37,7 +37,27 @@ serviceSpec:
   protocol: TCP
   targetPort: 8761
 
+
 livenessProbe:
   failureThreshold: 3
+  httpGet:
+    path: /first-service/actuator/health
+    port: 8081
+    scheme: HTTP
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  successThreshold: 1
+  timeoutSeconds: 10
 
 
+# Readiness Probe Settings
+readinessProbe:
+  failureThreshold: 3
+  httpGet:
+    path: /first-service/actuator/health
+    port: 8081
+    scheme: HTTP
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  successThreshold: 1
+  timeoutSeconds: 10

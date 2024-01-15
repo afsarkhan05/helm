@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-namespace: spring-projects
+namespace: spring-projects-test
 
 metadata:
   serviceName: spring-discovery
@@ -22,16 +22,14 @@ strategy:
   type: RollingUpdate
 
 envs:
-  SPRING_APPLICATION_NAME: myFirstApp
-  SERVER_PORT: 8081
-  SERVER_SERVLET_CONTEXT-PATH: "/first-service"
-  EUREKA_CLIENT_SERVICE-URL.DEFAULTZONE: "http://localhost:8761/eureka"
+  spring.application.name: myFirstApp
+  server.port: 8081
 
 dockerImage:
   image: afsarkhan05/spring-discovery-api-service
   version: 1.0-SNAPSHOT
-  imagePullPolicy: IfNotPresent
-  restartPolicy: IfNotPresent
+  imagePullPolicy: Always
+  restartPolicy: Always
 
 serviceSpec:
   name: http

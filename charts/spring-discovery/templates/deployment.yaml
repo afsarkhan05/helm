@@ -38,8 +38,8 @@ spec:
         {{ end }}
         image: {{ .Values.dockerImage.image }}:{{ .Values.dockerImage.version }}
         volumeMounts:
-            - name: config-volume
-              mountPath: /config
+          - name: config-volume
+            mountPath: /data
         imagePullPolicy: {{ .Values.dockerImage.imagePullPolicy }}
         name: {{ .Values.metadata.serviceName }}-container
         livenessProbe:
@@ -90,5 +90,7 @@ spec:
       terminationGracePeriodSeconds: {{ .Values.dockerImage.terminationGracePeriodSeconds }}
       volumes:
         - name: config-volume
-          configMap:
-            name: {{ .Values.metadata.serviceName }}-configmap
+          persistentVolumeClaim:
+            claimName: config-volume
+
+

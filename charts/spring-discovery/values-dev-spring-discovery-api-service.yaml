@@ -5,31 +5,23 @@
 namespace: spring-projects
 
 metadata:
-  serviceName: spring-discovery-api-service
+  serviceName: spring-discovery-api
 
 
 spec:
-  minReadySeconds: 10
-  progressDeadlineSeconds: 100
   replicas: 1
-  revisionHistoryLimit: 10
   containerPort: 8081
-  protocol: TCP
 
-strategy:
-  maxSurge: 1
-  maxUnavailable: 1
-  type: RollingUpdate
 
 envs:
-  SPRING_APPLICATION_NAME: firstService
-  SERVER_PORT: 8081
+  spring.application.name: firstService
+  server.port: 8081
+  server.servlet.context-path: "/first-service"
+  eureka.client.service-url.defaultZone: "http://eureka-server-service:8761/eureka"
 
 dockerImage:
   image: afsarkhan05/spring-discovery-api-service
   version: 1.0-SNAPSHOT
-  imagePullPolicy: IfNotPresent
-  restartPolicy: IfNotPresent
 
 serviceSpec:
   name: http
@@ -39,25 +31,25 @@ serviceSpec:
 
 
 livenessProbe:
-  failureThreshold: 3
+  failureThreshold: 10
   httpGet:
     path: /first-service/actuator/health
     port: 8081
     scheme: HTTP
-  initialDelaySeconds: 10
+  initialDelaySeconds: 180
   periodSeconds: 5
   successThreshold: 1
-  timeoutSeconds: 10
+  timeoutSeconds: 50
 
 
 # Readiness Probe Settings
 readinessProbe:
-  failureThreshold: 3
+  failureThreshold: 10
   httpGet:
     path: /first-service/actuator/health
     port: 8081
     scheme: HTTP
-  initialDelaySeconds: 10
+  initialDelaySeconds: 180
   periodSeconds: 5
   successThreshold: 1
-  timeoutSeconds: 10
+  timeoutSeconds: 50

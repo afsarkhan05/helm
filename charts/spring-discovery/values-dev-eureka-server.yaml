@@ -9,17 +9,8 @@ metadata:
 
 
 spec:
-  minReadySeconds: 10
-  progressDeadlineSeconds: 100
   replicas: 1
-  revisionHistoryLimit: 10
   containerPort: 8761
-  protocol: TCP
-
-strategy:
-  maxSurge: 1
-  maxUnavailable: 1
-  type: RollingUpdate
 
 envs:
   SPRING_APPLICATION_NAME: eureka-server
@@ -28,8 +19,6 @@ envs:
 dockerImage:
   image: afsarkhan05/spring-discovery-service
   version: 1.0-SNAPSHOT
-  imagePullPolicy: IfNotPresent
-  restartPolicy: IfNotPresent
 
 serviceSpec:
   name: http

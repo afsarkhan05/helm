@@ -1,33 +1,94 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "hello-world.fullname" . }}
   labels:
-    {{- include "hello-world.labels" . | nindent 4 }}
+    app: {{ .Values.metadata.serviceName }}-deployment
+    podlabel: {{ .Values.metadata.serviceName }}
+    namespace: {{ .Values.namespace }}
+    {{- range $k, $v := .Values.labels }}
+    {{ $k }}: {{ $v -}}
+    {{ end }}
+  name: {{ .Values.metadata.serviceName }}-deployment
+  namespace: {{ .Values.namespace }}
+  selfLink: /apis/apps/v1/namespaces/{{ .Values.namespace }}/deployments/{{ .Values.metadata.serviceName }}-deployment
 spec:
-  replicas: {{ .Values.replicaCount }}
+  minReadySeconds: {{ .Values.spec.minReadySeconds }}
+  progressDeadlineSeconds: {{ .Values.spec.progressDeadlineSeconds }}
+  replicas: {{ .Values.spec.replicas }}
+  revisionHistoryLimit: {{ .Values.spec.revisionHistoryLimit }}
   selector:
     matchLabels:
-      {{- include "hello-world.selectorLabels" . | nindent 6 }}
+      app: {{ .Values.metadata.serviceName }}-pod
+  strategy:
+    rollingUpdate:
+      maxSurge: {{ .Values.strategy.maxSurge }}
+      maxUnavailable: {{ .Values.strategy.maxUnavailable }}
+    type: {{ .Values.strategy.type }}
   template:
     metadata:
+      creationTimestamp: null
       labels:
-        {{- include "hello-world.selectorLabels" . | nindent 8 }}
+        app: {{ .Values.metadata.serviceName }}-pod
     spec:
-      serviceAccountName: {{ include "hello-world.serviceAccountName" . }}
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+      - env:
+        {{- range $k, $v := .Values.envs }}
+        - name: {{ $k }}
+          value: {{ $v | quote -}}
+        {{ end }}
+        image: {{ .Values.dockerImage.image }}:{{ .Values.dockerImage.version }}
+        volumeMounts:
+            - name: config-volume
+              mountPath: /config
+        imagePullPolicy: {{ .Values.dockerImage.imagePullPolicy }}
+        name: {{ .Values.metadata.serviceName }}-container
+        livenessProbe:
+          failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          httpGet:
+            path: {{ .Values.livenessProbe.httpGet.path }}
+            port: {{ .Values.livenessProbe.httpGet.port }}
+            scheme: {{ .Values.livenessProbe.httpGet.scheme }}
+          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          successThreshold: {{ .Values.livenessProbe.successThreshold }}
+          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+        readinessProbe:
+          failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          httpGet:
+            path: {{ .Values.readinessProbe.httpGet.path }}
+            port: {{ .Values.readinessProbe.httpGet.port }}
+            scheme: {{ .Values.readinessProbe.httpGet.scheme }}
+          initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+          successThreshold: {{ .Values.readinessProbe.successThreshold }}
+          timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+        ports:
+        - containerPort: {{ .Values.spec.containerPort }}
+          protocol: {{ .Values.spec.protocol }}
+        {{- range $probe := .Values.probes }}
+        {{ $probe.name}}:
+          failureThreshold: {{ $probe.failureThreshold }}
+          httpGet:
+            path: {{ $probe.path }}
+            port: {{ $probe.port }}
+            scheme: {{ $probe.scheme }}
+          initialDelaySeconds: {{ $probe.initialDelaySeconds }}
+          periodSeconds: {{ $probe.periodSeconds }}
+          successThreshold: {{ $probe.successThreshold }}
+          timeoutSeconds: {{ $probe.timeoutSeconds -}}
+        {{ end }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      imagePullSecrets:
+      - name: {{ .Values.dockerImage.imagePullSecrets }}
+      dnsPolicy: ClusterFirst
+      restartPolicy: {{ .Values.dockerImage.restartPolicy }}
+      schedulerName: {{ .Values.dockerImage.schedulerName }}
+      securityContext: {}
+      terminationGracePeriodSeconds: {{ .Values.dockerImage.terminationGracePeriodSeconds }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ .Values.metadata.serviceName }}-configmap
